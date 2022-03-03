@@ -1,0 +1,57 @@
+﻿@page
+@model Booksite.Pages.CartModel
+@{
+}
+
+<!--Add title, this is the basket-->
+<h2>Your Basket</h2>
+
+<table class="table table-bordered table-striped">
+<!--Add table where all the feautres will go.-->
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Cost</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach(var i in Model.basket.Items)
+        {
+            <tr>
+                <td>@i.Book.Title</td>
+                <td>@i.Quantity</td>
+                <td>@i.Book.Price.ToString("c")</td>
+                <td>@((i.Quantity * i.Book.Price).ToString("c"))</td>
+
+
+                <td class="text-center">
+                    <form method="post" asp-page-handler="Remove">
+                        <input type="hidden" name="bookId" value="@i.Book.BookId" />
+                        <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+                        <button type="submit" class="btn btn-sm btn-dnager">Remove</button>
+
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+
+    <tfoot>
+        <tr>
+            <td colspan="3">Total:</td>
+            <td>@Model.basket.CalculateTotal().ToString("c", CultureInfo.CreateSpecificCulture("en-US"))</td>
+        </tr>
+    </tfoot>
+
+</table>
+
+<div>
+
+    <!--Add another button-->
+
+    <a class="btn btn-primary" href="@Model.ReturnUrl">Continue Shopping</a>
+    <a class="btn btn-primary" asp-controller="Summary" asp-action="Checkout" >Checkout</a>
+</div>
