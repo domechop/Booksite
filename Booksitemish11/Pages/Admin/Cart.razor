@@ -1,0 +1,40 @@
+﻿@page "/admin/cart"
+
+@inherits OwningComponentBase<ISummaryRepository>
+
+<OrdersTable TableTitle="Unshipped" Orders="UnshippedOrders"
+             ButtonLabel="Shipped" OrderSelected="ShipOrder"></OrdersTable>
+<OrdersTable TableTitle="Shipped Orders" Orders="ShippedOrders"
+             ButtonLabel="Reset" OrderSelected="ResetOrder"></OrdersTable>
+
+<button class="btn btn-info" @onclick="@(x => UpdateData())">Refresh Data</button>
+@code {
+
+    public ISummaryRepository repo => Service;
+
+    public IEnumerable<Booksite.Models.Summary> AllOrders { get; set; }
+    public IEnumerable<Booksite.Models.Summary> UnshippedOrders { get; set; }
+    public IEnumerable<Booksite.Models.Summary> ShippedOrders { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        await UpdateData();
+    }
+
+    public async Task UpdateData()
+    {
+        AllOrders = await repo.Summarys.ToListAsync();
+        UnshippedOrders = AllOrders.Where(x => !x.Shipped);
+        ShippedOrders = AllOrders.Where(x => x.Shipped);
+    }
+
+    public void ShipOrder(int id) => UpdateOrder(id, true);
+    public void ResetOrder(int id) => UpdateOrder(id, false);
+
+    private void UpdateOrder(int id, bool shipped)
+    {
+        Summary s = repo.Summarys.FirstOrDefault(x => x.SummaryId == id);
+        s.Shipped = shipped;
+        repo.SaveSummary(s);
+    }
+}
